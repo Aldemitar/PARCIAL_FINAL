@@ -28,16 +28,14 @@ router = APIRouter(lifespan=lifespan)
 
 @router.get("/", response_class=HTMLResponse)
 async def read_home(request: Request):
-    return templates.TemplateResponse("usuarios_registro.html", {"request": request})
+    return templates.TemplateResponse("vuelos.html", {"request": request})
 
 @router.get("/usuarios_registro", response_class=HTMLResponse, tags=["Usuarios"])
-async def usuario_html(
-    request: Request,
-    session: AsyncSession = Depends(get_session),
-    id: int = None,
-):
+async def usuario_html(request: Request,session: AsyncSession = Depends(get_session),id: int = None,):
     usuarios = []
     usuarios = await obtener_usuarios_db(session)
+
+    usuarios = [u for u in usuarios if not u.eliminado]
 
     return templates.TemplateResponse("usuarios_registro.html", {
         "request": request,
