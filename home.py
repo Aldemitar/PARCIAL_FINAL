@@ -27,7 +27,7 @@ router = APIRouter(lifespan=lifespan)
 
 @router.get("/", response_class=HTMLResponse)
 async def read_home(request: Request):
-    return templates.TemplateResponse("usuario_registro.html", {"request": request})
+    return templates.TemplateResponse("usuarios_registro.html", {"request": request})
 
 @router.get("/usuarios_registro", response_class=HTMLResponse, tags=["Usuarios"])
 async def usuario_html(
