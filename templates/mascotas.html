@@ -1,0 +1,131 @@
+{% extends 'base.html' %}
+{% block title %} {{ titulo }} - Visualizando {% endblock %}
+{% block content %}
+
+<header class="bg-dark text-white py-5">
+    <div class="container text-center">
+        <h1 class="display-3 fw-bold mb-3">{{ titulo }}</h1>
+    </div>
+</header>
+
+<br>
+
+<div class="container">
+    <div class="container mt-4 mb-4">
+        <div class="row g-3 justify-content-center">
+            <div class="col-md-6">
+                <form method="get" action="/mascotas" class="d-flex justify-content-center align-items-center">
+                    <label for="raza" class="me-2 fw-bold">Filtrar por raza:</label>
+                    <select name="raza" id="raza" class="form-select w-auto me-2">
+                        <option value="">-- Todas --</option>
+                        {% for r in razas_disponibles %}
+                        <option value="{{ r }}" {% if raza == r %}selected{% endif %}>{{ r }}</option>
+                        {% endfor %}
+                    </select>
+                    <button type="submit" class="btn btn-secondary me-2">Filtrar</button>
+                    {% if raza %}
+                        <a href="/mascotas" class="btn btn-outline-dark">Quitar filtro</a>
+                    {% endif %}
+                </form>
+            </div>
+            <div class="col-md-6">
+                <form method="get" action="/mascotas" class="d-flex justify-content-center align-items-center">
+                    <label for="buscar_id" class="me-2 fw-bold">Buscar por ID:</label>
+                    <input type="number" min="1" name="buscar_id" id="buscar_id" class="form-control w-auto me-2" placeholder="Ej: 5" required>
+                    <button type="submit" class="btn btn-primary me-2">Buscar</button>
+                    <a href="/mascotas" class="btn btn-outline-dark">Limpiar</a>
+                </form>
+            </div>
+        </div>
+    </div>
+    <div class="table-responsive mt-4">
+        <table class="table table-striped table-hover table-bordered align-middle shadow-sm">
+            <thead class="table-dark text-center">
+                <tr>
+                    <th>ID</th>
+                    <th>Nombre</th>
+                    <th>Raza</th>
+                    <th>Edad</th>
+                    <th>ID Usuario</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+            <tbody class="text-center">
+                {% for mascota in mascotas %}
+                <tr>
+                    <td>{{ mascota.id }}</td>
+                    <td>{{ mascota.nombre }}</td>
+                    <td>{{ mascota.raza }}</td>
+                    <td>{{ mascota.edad }}</td>
+                    <td>{{ mascota.usuario_id if mascota.usuario_id else 'Sin asignar' }}</td>
+                    <td>
+                        <a href="/mascotas/edit/{{ mascota.id }}" class="btn btn-warning btn-sm">
+                            <i class="bi bi-pencil"></i> Actualizar
+                        </a>
+                        <form action="/mascotas/delete/{{ mascota.id }}" method="POST" style="display:inline;" onsubmit="return confirmarYMostrarCargaEliminar(this)">
+                            <button type="submit" class="btn btn-danger btn-sm">
+                                <i class="bi bi-trash"></i> Eliminar
+                            </button>
+                        </form>
+                        {% if not mascota.usuario_id %}
+                        <form action="/mascotas/{{ mascota.id }}/asociar" method="post" class="mt-2 d-flex flex-column align-items-center">
+                            <div class="input-group">
+                                <select name="usuario_id" class="form-select form-select-sm" required>
+                                    <option value="">-- Asociar a usuario --</option>
+                                    {% if usuarios_disponibles %}
+                                        {% for usuario in usuarios_disponibles %}
+                                            <option value="{{ usuario.id }}">{{ usuario.nombre }} (ID {{ usuario.id }})</option>
+                                        {% endfor %}
+                                    {% else %}
+                                        <option disabled>No hay usuarios disponibles</option>
+                                    {% endif %}
+                                </select>
+                                <button type="submit" class="btn btn-success btn-sm">
+                                    <i class="bi bi-link-45deg"></i> Asociar
+                                </button>
+                            </div>
+                        </form>
+                        {% else %}
+                        <form action="/mascotas/{{ mascota.id }}/desasociar" method="POST" class="mt-2" onsubmit="return confirm('¿Desasociar esta mascota del usuario?')">
+                            <button type="submit" class="btn btn-outline-secondary btn-sm">
+                                <i class="bi bi-x-circle"></i> Desasignar
+                            </button>
+                        </form>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    <div class="mb-4 text-center">
+        <a href="/mascotas/add" class="btn btn-primary">
+            <i class="bi bi-plus-lg"></i> Agregar Mascota
+        </a>
+    </div>
+    <div id="pantallaCarga" class="text-center mt-4" style="display: none;">
+        <div class="spinner-border text-danger" role="status">
+            <span class="visually-hidden">Cargando...</span>
+        </div>
+        <p class="mt-2">Eliminando mascota, por favor espera...</p>
+    </div>
+</div>
+<br>
+
+<script> 
+
+function confirmarYMostrarCargaEliminar(formulario) { 
+
+    if (confirm('¿Estás seguro de eliminar esta mascota?')) { 
+        document.getElementById('pantallaCarga').style.display = 'block'; 
+        const boton = formulario.querySelector('button[type="submit"]'); 
+        boton.disabled = true; 
+        boton.innerText = 'Eliminando...'; 
+        return true; 
+    } else { 
+        return false; 
+    } 
+} 
+</script>
+
+{% endblock %}
