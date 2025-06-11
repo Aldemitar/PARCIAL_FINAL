@@ -1,6 +1,6 @@
 {% extends 'base.html' %}
 {% block title %} {{ titulo }} {% endblock %}
-{% block content %}
+{% block content %}    
 
     <header class="bg-dark text-white py-5 shadow-sm">
         <div class="container text-center">
@@ -11,24 +11,24 @@
     <div class="container my-5">
         <div class="card shadow-lg border-0">
             <div class="card-body px-4 py-5">
-                <h2 class="card-title mb-4 text-primary text-center fw-semibold">Añadir Nuevo Vehículo</h2>
-                <form id="vehiculoForm" method="post" action="/usuarios/add" enctype="multipart/form-data" onsubmit="mostrarCarga()">
+                <h2 class="card-title mb-4 text-primary text-center fw-semibold">Agregar Nuevo Usuario</h2>
+                <form id="usuarioForm" method="post" action="/usuarios/add" onsubmit="mostrarCarga()">
                     <div class="row g-3">
                         <div class="col-md-6">
-                            <label for="nombre" class="form-label fw-semibold">nombre</label>
-                            <input type="text" id="nombre" name="nombre" class="form-control form-control-lg" required>
+                            <label for="nombre" class="form-label fw-semibold">Nombre</label>
+                            <input type="text" name="nombre" id="nombre" class="form-control form-control-lg" required>
                         </div>
                         <div class="col-md-6">
-                            <label for="cedula" class="form-label fw-semibold">cedula</label>
-                            <input type="number" id="cedula" name="cedula" class="form-control form-control-lg" required>
+                            <label for="cedula" class="form-label fw-semibold">Cédula</label>
+                            <input type="text" name="cedula" id="cedula" class="form-control form-control-lg" required>
                         </div>
                     </div>
                     <div class="d-flex justify-content-between align-items-center mt-5">
-                        <button id="submitBtn" type="submit" class="btn btn-success btn-lg px-4">
-                            <i class="bi bi-plus-lg me-2"></i>Crear Usuario
+                        <button id="submitBtn" type="submit" class="btn btn-primary btn-lg px-4">
+                            <i class="bi bi-check-circle me-2"></i>Agregar Usuario
                         </button>
-                        <a href="/usuarios_registro" class="btn btn-outline-secondary btn-lg px-4">
-                            <i class="bi bi-arrow-left me-2"></i>Cancelar
+                        <a href="/usuarios" class="btn btn-outline-secondary btn-lg px-4">
+                            <i class="bi bi-x-circle me-2"></i>Cancelar
                         </a>
                     </div>
                     <div id="pantallaCarga" class="text-center mt-5" style="display: none;">
