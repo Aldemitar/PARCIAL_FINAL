@@ -7,7 +7,7 @@ import pandas as pd
 from utils.connection_db import init_db, get_session
 
 from data.models import Usuario, Mascota, Vuelo
-from data.schemas import UsuarioCreateForm, UsuarioCreate
+from data.schemas import UsuarioCreateForm, UsuarioCreate, MascotaCreateForm, MascotaCreate
 
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.exc import IntegrityError
@@ -16,7 +16,7 @@ from sqlalchemy import func
 
 from typing import List, Optional
 
-from operations.operations_db import obtener_usuarios_db, crear_usuario_db
+from operations.operations_db import obtener_usuarios_db, crear_usuario_db, crear_mascota_db, obtener_mascotas_db
 
 @asynccontextmanager
 async def lifespan(app: APIRouter):
@@ -60,34 +60,37 @@ async def submit_usuario_form(
     return RedirectResponse(url="/usuarios_registro", status_code=status.HTTP_303_SEE_OTHER)
 
 @router.get("/mascotas_registro", response_class=HTMLResponse, tags=["Mascotas"])
-async def mascotas_html(
+async def mascota_html(
     request: Request,
     session: AsyncSession = Depends(get_session),
-    raza: str = None,
-    buscar_id: int = None,
+    id: int = None,
     ):
-    query = select(Mascota)
-    if raza:
-        query = query.where(Mascota.raza == raza)
-    if buscar_id:
-        query = query.where(Mascota.id == buscar_id)
+    mascotas = []
+    mascotas = await obtener_mascotas_db(session)
 
-    result = await session.execute(query)
-    mascotas = result.scalars().all()
+    mascotas = [m for m in mascotas if not m.eliminado]
 
-    razas_result = await session.execute(select(Mascota.raza).distinct())
-    razas_disponibles = [r[0] for r in razas_result.all()]
-
-
-    usuarios_result = await session.execute(select(Usuario))
-    usuarios_disponibles = usuarios_result.scalars().all()
-
-    return templates.TemplateResponse("mascotas_registro.html", {
+    return templates.TemplateResponse("mascotas.html", {
         "request": request,
-        "mascotas": mascotas,
-        "razas_disponibles": razas_disponibles,
-        "usuarios_disponibles": usuarios_disponibles,
-        "raza": raza,
-        "titulo": "Listado de Mascotas",
-        "buscar_id": buscar_id,
+        "sesiones": mascotas,
+        "titulo": "Mascotas registradas",
     })
+
+
+@router.get("/mascotas/add", response_class=HTMLResponse, tags=["Mascotas"])
+async def show_mascota_form(request: Request):
+    return templates.TemplateResponse("add_mascota.html", {"request": request, "titulo": "Creación mascota"})
+
+@router.post("/mascotas/add", status_code=status.HTTP_303_SEE_OTHER, tags=["Mascotas"])
+async def submit_mascota_form(
+    mascota_form: MascotaCreateForm = Depends(),
+    session: AsyncSession = Depends(get_session)
+    ):
+        mascota_create = MascotaCreate(
+        nombre=mascota_form.nombre,
+        raza=mascota_form.raza,
+        edad=mascota_form.edad,
+        usuario_id=mascota_form.usuario_id,
+    )
+        await crear_mascota_db(mascota_create, session)
+        return RedirectResponse(url="/mascotas_registro", status_code=status.HTTP_303_SEE_OTHER)
