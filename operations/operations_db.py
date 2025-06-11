@@ -12,3 +12,10 @@ from typing import List, Optional
 async def obtener_usuarios_db(session: AsyncSession) -> List[Usuario]:
     result = await session.execute(select(Usuario).order_by(Usuario.id))
     return result.scalars().all()
+
+async def crear_usuario_db(usuario_create, session: AsyncSession):
+    usuario = Usuario(**usuario_create.dict())
+    session.add(usuario)
+    await session.commit()
+    await session.refresh(usuario) 
+    return usuario
