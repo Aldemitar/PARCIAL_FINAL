@@ -1,0 +1,63 @@
+{% extends 'base.html' %}
+{% block title %} {{ titulo }} - Visualizando {% endblock %}
+{% block content %}
+
+    <header class="bg-dark text-white py-5">
+        <div class="container text-center">
+            <h1 class="display-3 fw-bold mb-3">{{ titulo }}</h1>
+        </div>
+    </header>
+    <br>
+
+    <div class="container">
+        <div class="table-responsive">
+            <table class="table table-striped table-hover table-bordered align-middle shadow-sm">
+                <thead class="table-dark text-center">
+                    <tr>
+                        <th>ID</th>
+                        <th>Nombre</th>
+                        <th>Cedula</th>
+                    </tr>
+                </thead>
+                <tbody class="text-center">
+                    {% for usuario in sesiones %}
+                    <tr>
+                        <td>{{ usuario.id }}</td>
+                        <td>{{ usuario.nombre }}</td>
+                        <td>{{ usuario.cedula }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        <div class="mb-4 text-center">
+            <a href="/vehiculos/add" class="btn btn-primary me-2">
+                <i class="bi bi-plus-lg"></i> Agregar usuario
+            </a>
+            <a href="/vehiculos_eliminados" class="btn btn-outline-secondary">
+                <i class="bi bi-archive"></i> Ver eliminados
+            </a>
+        </div>
+        <div id="pantallaCarga" class="text-center mt-4" style="display: none;">
+            <div class="spinner-border text-danger" role="status">
+                <span class="visually-hidden">Cargando...</span>
+            </div>
+            <p class="mt-2">Eliminando usuario, por favor espera...</p>
+        </div>
+    </div>
+
+<script>
+    function confirmarYMostrarCargaEliminar(formulario) {
+        if (confirm('¿Estás seguro de eliminar este vehículo?')) {
+            document.getElementById('pantallaCarga').style.display = 'block';
+            const boton = formulario.querySelector('button[type="submit"]');
+            boton.disabled = true;
+            boton.innerText = 'Eliminando...';
+            return true;
+        } else {
+            return false;
+        }
+    }
+</script>
+
+{% endblock %}
