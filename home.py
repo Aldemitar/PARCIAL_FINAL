@@ -16,7 +16,7 @@ from sqlalchemy import func
 
 from typing import List, Optional
 
-from operations.operations_db import obtener_usuarios_db, crear_usuario_db, crear_mascota_db, obtener_mascotas_db
+from operations.operations_db import obtener_usuarios_db, crear_usuario_db, crear_mascota_db, obtener_mascotas_db, actualizar_usuario_db, eliminar_usuario_db
 
 @asynccontextmanager
 async def lifespan(app: APIRouter):
@@ -94,3 +94,29 @@ async def submit_mascota_form(
     )
         await crear_mascota_db(mascota_create, session)
         return RedirectResponse(url="/mascotas_registro", status_code=status.HTTP_303_SEE_OTHER)
+
+@router.get("/usuarios/edit/{usuario_id}", response_class=HTMLResponse, tags=["Usuarios"])
+async def edit_usuario_form(request: Request, usuario_id: int, session: AsyncSession = Depends(get_session)):
+    result = await session.execute(select(Usuario).where(Usuario.id == usuario_id))
+    usuario = result.scalar_one_or_none()
+    if not usuario or usuario.eliminado:
+        return RedirectResponse(url="/usuarios_registro", status_code=status.HTTP_303_SEE_OTHER)
+    return templates.TemplateResponse("edit_usuario.html", {"request": request, "usuario": usuario, "titulo": "Editar Usuario"})
+
+@router.post("/usuarios/edit/{usuario_id}", status_code=status.HTTP_303_SEE_OTHER, tags=["Usuarios"])
+async def submit_edit_usuario_form(
+    usuario_id: int,
+    usuario_form: UsuarioCreateForm = Depends(),
+    session: AsyncSession = Depends(get_session)
+    ):
+    usuario_update = UsuarioCreate(
+    nombre=usuario_form.nombre,
+    cedula=usuario_form.cedula,
+    )
+    await actualizar_usuario_db(usuario_id, usuario_update, session)
+    return RedirectResponse(url="/usuarios_registro", status_code=status.HTTP_303_SEE_OTHER)
+
+@router.post("/usuarios/delete/{usuario_id}", status_code=status.HTTP_303_SEE_OTHER, tags=["Usuarios"])
+async def delete_usuario(usuario_id: int, session: AsyncSession = Depends(get_session)):
+    await eliminar_usuario_db(usuario_id, session)
+    return RedirectResponse(url="/usuarios_registro", status_code=status.HTTP_303_SEE_OTHER)
