@@ -20,6 +20,10 @@ async def lifespan(app: APIRouter):
     await init_db()
     yield
 
+@router.get("/", response_class=HTMLResponse)
+async def read_home(request: Request):
+    return templates.TemplateResponse("home.html", {"request": request})
+
 @router.get("/usuarios", response_class=HTMLResponse)
 async def list_usuarios(request: Request, session: AsyncSession = Depends(get_session)):
     usuarios = await obtener_usuarios(session)
