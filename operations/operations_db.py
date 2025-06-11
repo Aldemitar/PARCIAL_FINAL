@@ -20,6 +20,28 @@ async def crear_usuario_db(usuario_create, session: AsyncSession):
     await session.refresh(usuario) 
     return usuario
 
+async def eliminar_usuario_db(usuario_id: int, session: AsyncSession):
+    result = await session.execute(select(Usuario).where(Usuario.id == usuario_id))
+    usuario = result.scalar_one_or_none()
+    if not usuario:
+        raise HTTPException(status_code=404, detail="Usuario no encontrado")
+    usuario.eliminado = True
+    session.add(usuario)
+    await session.commit()
+    return usuario
+
+async def actualizar_usuario_db(usuario_id: int, usuario_update, session: AsyncSession):
+    result = await session.execute(select(Usuario).where(Usuario.id == usuario_id))
+    usuario = result.scalar_one_or_none()
+    if not usuario:
+        raise HTTPException(status_code=404, detail="Usuario no encontrado")
+    usuario.nombre = usuario_update.nombre
+    usuario.cedula = usuario_update.cedula
+    session.add(usuario)
+    await session.commit()
+    await session.refresh(usuario)
+    return usuario
+
 async def obtener_mascotas_db(session: AsyncSession) -> List[Mascota]:
     result = await session.execute(select(Mascota).order_by(Mascota.id))
     return result.scalars().all()
@@ -30,3 +52,4 @@ async def crear_mascota_db(mascota_create, session: AsyncSession):
     await session.commit()
     await session.refresh(mascota)
     return mascota
+
