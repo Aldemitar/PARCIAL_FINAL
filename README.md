@@ -5,7 +5,6 @@
   <img src="https://img.shields.io/badge/Python-3.11-blue?logo=python&style=flat"/>
   <img src="https://img.shields.io/badge/FastAPI-0.110.0-teal?logo=fastapi"/>
   <img src="https://img.shields.io/badge/PostgreSQL-15-blue?logo=postgresql"/>
-  <img src="https://img.shields.io/badge/Supabase-Storage-green?logo=supabase"/>
   <img src="https://img.shields.io/badge/Render-Deployed-blueviolet?logo=render"/>
 </p>
 
