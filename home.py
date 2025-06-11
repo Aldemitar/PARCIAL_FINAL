@@ -7,6 +7,7 @@ import pandas as pd
 from utils.connection_db import init_db, get_session
 
 from data.models import Usuario, Mascota, Vuelo
+from data.schemas import UsuarioCreateForm, UsuarioCreate
 
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.exc import IntegrityError
@@ -15,7 +16,7 @@ from sqlalchemy import func
 
 from typing import List, Optional
 
-from operations.operations_db import obtener_usuarios_db
+from operations.operations_db import obtener_usuarios_db, crear_usuario_db
 
 @asynccontextmanager
 async def lifespan(app: APIRouter):
@@ -43,3 +44,19 @@ async def usuario_html(
         "sesiones": usuarios,
         "titulo": "Usuarios registrados",
     })
+
+@router.get("/usuarios/add", response_class=HTMLResponse, tags=["Usuarios"])
+async def show_usuario_form(request: Request):
+    return templates.TemplateResponse("add_usuario.html", {"request": request, "titulo": "Creación vehículo"})
+
+@router.post("/usuarios/add", status_code=status.HTTP_303_SEE_OTHER, tags=["Usuarios"])
+async def submit_usuario_form(
+    usuario_form: UsuarioCreateForm = Depends(),
+    session: AsyncSession = Depends(get_session)
+):
+    usuario_create = UsuarioCreate(
+        nombre=usuario_form.nombre,
+        cedula=usuario_form.cedula,
+    )
+    await crear_usuario_db(usuario_create, session)
+    return RedirectResponse(url="/usuarios_registro", status_code=status.HTTP_303_SEE_OTHER)
