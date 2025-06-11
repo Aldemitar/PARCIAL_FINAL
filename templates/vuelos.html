@@ -1,5 +1,48 @@
 {% extends 'base.html' %}
 {% block title %} {{ titulo }} {% endblock %}
-{% block content %}
+{% block content %}    
+
+    <header class="bg-dark text-white py-5 shadow-sm">
+        <div class="container text-center">
+            <h1 class="display-3 fw-bold mb-3">{{ titulo }}</h1>
+        </div>
+    </header>
+
+    <div class="container my-5">
+        <a href="/vuelos/add" class="btn btn-primary mb-4">Agregar Vuelo</a>
+        <table class="table table-striped table-bordered">
+            <thead class="table-dark">
+                <tr>
+                    <th>ID</th>
+                    <th>Ciudad Origen</th>
+                    <th>Ciudad Destino</th>
+                    <th>Precio</th>
+                    <th>Disponible</th>
+                    <th>Fecha</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for vuelo in sesiones %}
+                <tr>
+                    <td>{{ vuelo.id }}</td>
+                    <td>{{ vuelo.ciudad_origen }}</td>
+                    <td>{{ vuelo.ciudad_destino }}</td>
+                    <td>{{ vuelo.precio }}</td>
+                    <td>{{ vuelo.disponible }}</td>
+                    <td>{{ vuelo.fecha }}</td>
+                    <td>
+                        <a href="/vuelos/edit/{{ vuelo.id }}" class="btn btn-sm btn-warning">Editar</a>
+                        <form action="/vuelos/delete/{{ vuelo.id }}" method="post" style="display:inline;">
+                            <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('¿Está seguro de eliminar este vuelo?');">Eliminar</button>
+                        </form>
+                    </td>
+                </tr>
+                {% else %}
+                <tr><td colspan="7" class="text-center">No hay vuelos registrados.</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
 
 {% endblock %}
