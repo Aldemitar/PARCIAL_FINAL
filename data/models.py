@@ -7,7 +7,8 @@ from sqlalchemy import Column, Boolean
 class Usuario(SQLModel, table=True):
     id: Optional[int] = Field(default=None, primary_key=True)
     nombre: str
-    cedula: int
+    cedula: str
+    eliminado: bool = Field(default=False)
     vuelo_id: Optional[int] = Field(default=None, foreign_key="vuelo.id")
     mascota_id: Optional[int] = Field(default=None, foreign_key="mascota.id")
     vuelo: Optional["Vuelo"] = Relationship(back_populates="usuario")
@@ -18,6 +19,7 @@ class Mascota(SQLModel, table=True):
     nombre: str
     raza: str
     edad: int
+    eliminado: bool = Field(default=False)
     usuario_id: Optional[int] = Field(default=None, foreign_key="usuario.id")
     usuario: Optional[Usuario] = Relationship(back_populates="mascota")
 
