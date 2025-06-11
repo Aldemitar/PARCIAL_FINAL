@@ -60,3 +60,36 @@ async def submit_usuario_form(
     )
     await crear_usuario_db(usuario_create, session)
     return RedirectResponse(url="/usuarios_registro", status_code=status.HTTP_303_SEE_OTHER)
+
+@router.get("/mascotas_registro", response_class=HTMLResponse, tags=["Mascotas"])
+async def mascotas_html(
+    request: Request,
+    session: AsyncSession = Depends(get_session),
+    raza: str = None,
+    buscar_id: int = None,
+    ):
+    query = select(Mascota)
+    if raza:
+        query = query.where(Mascota.raza == raza)
+    if buscar_id:
+        query = query.where(Mascota.id == buscar_id)
+
+    result = await session.execute(query)
+    mascotas = result.scalars().all()
+
+    razas_result = await session.execute(select(Mascota.raza).distinct())
+    razas_disponibles = [r[0] for r in razas_result.all()]
+
+
+    usuarios_result = await session.execute(select(Usuario))
+    usuarios_disponibles = usuarios_result.scalars().all()
+
+    return templates.TemplateResponse("mascotas_registro.html", {
+        "request": request,
+        "mascotas": mascotas,
+        "razas_disponibles": razas_disponibles,
+        "usuarios_disponibles": usuarios_disponibles,
+        "raza": raza,
+        "titulo": "Listado de Mascotas",
+        "buscar_id": buscar_id,
+    })
