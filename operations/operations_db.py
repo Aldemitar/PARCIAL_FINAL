@@ -19,3 +19,14 @@ async def crear_usuario_db(usuario_create, session: AsyncSession):
     await session.commit()
     await session.refresh(usuario) 
     return usuario
+
+async def obtener_mascotas_db(session: AsyncSession) -> List[Mascota]:
+    result = await session.execute(select(Mascota).order_by(Mascota.id))
+    return result.scalars().all()
+
+async def crear_mascota_db(mascota_create, session: AsyncSession):
+    mascota = Mascota(**mascota_create.dict())
+    session.add(mascota)
+    await session.commit()
+    await session.refresh(mascota)
+    return mascota
